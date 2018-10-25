@@ -68,6 +68,23 @@ when 'prettify' %>
 <script>document.addEventListener('DOMContentLoaded', prettyPrint)</script><%
 end %>
 
+<% if attr 'version_header' %>
+<div>
+<% version = `git describe --tags 2> /dev/null`.chomp() %>
+<% if version.to_s.empty? %>
+  <% version = `git describe --tags $(git rev-list --tags --max-count=1)`.chomp() %>
+    <% if version.to_s.empty? %>
+      <% version = "generated from Git commit " + `git rev-parse HEAD`.chomp() %>
+    <% else %>
+      <% version = "docs for version " + version + " generated from Git commit "  + `git rev-parse HEAD`.chomp() %>
+    <% end %>
+<% else %>
+  <% version = "docs for version " + version %>
+<% end %>
+<span class="footnote"><%= version %></span>
+</div>
+<% end %>
+
 <div class="container">
   <div class="row">
     <div class="col-md-9">

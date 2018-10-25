@@ -31,7 +31,7 @@
 set -e
 
 usage() {
-  echo usage: "$0 --build_root <path to build root> [--site <path to gh-pages checkout>]"
+  echo usage: "$0 --build_root <path to build root> [--site <path to gh-pages checkout> [--add-version-header]"
 }
 
 while [[ $# > 0 ]] ; do
@@ -64,6 +64,10 @@ while [[ $# > 0 ]] ; do
         ;;
       --no-jekyll)
         NO_JEKYLL=1
+        shift
+        ;;
+      --add-version-header)
+        ADD_HEADER='-a version_header=y'
         shift
         ;;
       *)
@@ -199,8 +203,8 @@ else
     TEMPLATE_FLAG=""
 fi
 
-bundle exec asciidoctor -d book $TEMPLATE_FLAG \
-    $SOURCE_ROOT/docs/*.adoc ${GEN_DOC_DIR}/*.adoc -D "$OUTPUT_DIR"
+bundle exec asciidoctor $ADD_HEADER -d book $TEMPLATE_FLAG \
+    $SOURCE_ROOT/docs/*.adoc ${GEN_DOC_DIR}/*.adoc -D "$OUTPUT_DIR" 
 
 mkdir -p "$OUTPUT_DIR/images"
 cp $SOURCE_ROOT/docs/images/* "$OUTPUT_DIR/images/"
@@ -224,7 +228,6 @@ if [ -n "$SITE" ] && [ -z "$NO_JEKYLL" ]; then
   TMP_CONFIG="$TMP_CONFIG.yml"
   trap "rm $TMP_CONFIG" EXIT
   printf "github:\n  url: %s" "$BASE_URL" > $TMP_CONFIG
-
   # Now rebuild the site itself.
   echo Attempting to re-build via Jekyll...
   bundle exec jekyll build --source "$SITE" --config "$TMP_CONFIG"

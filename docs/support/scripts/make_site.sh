@@ -30,24 +30,27 @@ SITE_OUTPUT_DIR="$BUILD_ROOT/site"
 OPT_DOXYGEN=1 # By default, build doxygen docs.
 OPT_JAVADOC=1 # By default, build javadocs.
 OPT_FORCE='' # By default, don't overwrite the destination directory.
+OPT_HEADER=''
 
 usage() {
-  echo "Usage: $0 [--no-doxygen] [--no-javadoc] [--force]"
+  echo "Usage: $0 [--no-doxygen] [--no-javadoc] [--force] [--add-version-header]"
   echo "Specify --no-doxygen to skip generation of the C++ client API docs"
   echo "Specify --no-javadoc to skip generation of the Java API docs"
   echo "Specify --force to overwrite the destination directory, if it exists"
+  echo "Specify --add-version-header to add a header with the version number in the docs site"
   exit 1
 }
 
 if [ $# -gt 0 ]; then
   for arg in $*; do
     case $arg in
-      "--no-doxygen")  OPT_DOXYGEN='' ;;
-      "--no-javadoc")  OPT_JAVADOC='' ;;
-      "--force")       OPT_FORCE=1 ;;
-      "--help")        usage ;;
-      "-h")            usage ;;
-      *)               echo "$0: Unknown command-line option: $arg"; usage ;;
+      "--no-doxygen")           OPT_DOXYGEN='' ;;
+      "--no-javadoc")           OPT_JAVADOC='' ;;
+      "--force")                OPT_FORCE=1 ;;
+      "--add-version-header")   OPT_HEADER='--add-version-header' ;;
+      "--help")                 usage ;;
+      "-h")                     usage ;;
+      *)                        echo "$0: Unknown command-line option: $arg"; usage ;;
     esac
   done
 fi
@@ -94,7 +97,7 @@ git clone -q "$GIT_REMOTE" --reference "$SOURCE_ROOT" -b gh-pages --depth 1 "$SI
 
 # Build the docs using the styles from the Jekyll site
 rm -Rf "$SITE_OUTPUT_DIR/docs"
-$SOURCE_ROOT/docs/support/scripts/make_docs.sh --build_root $BUILD_ROOT --site "$SITE_OUTPUT_DIR"
+$SOURCE_ROOT/docs/support/scripts/make_docs.sh --build_root $BUILD_ROOT --site "$SITE_OUTPUT_DIR" $OPT_HEADER
 if [ -f "$SITE_OUTPUT_DIR/docs/index.html" ]; then
   echo "Successfully built docs."
 else
